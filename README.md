@@ -1,58 +1,48 @@
 # devops-netology
-Test commit. 1-12-21
-С помощью файла .gitignore в директории \terraform будут проигнорированы следующие файлы:
-- из директории **/.terraform/*
-- файлы с шаблонами *.tfstate и *.tfstate.*
-- файл crash.log
-- все файлы с расширением *.tfvars
-- файлы override.tf
-	override.tf.json
-	*_override.tf
-	*_override.tf.json
-- файлы .terraformrc
-	terraform.rc
+Домашная работа "Работа в терминале Лекция 1"
 
-Домашная работа 2.4 Инструменты Git
-1. 
-solution: git show aefea
-hash: aefead2207ef7e2aa5dc81a34aedf0cad4c32545
-comment: Update CHANGELOG.md
-2. 
-solution: git show 85024d3
-v0.12.23
-3. 
-solution: git rev-parse b8d720^@
-56cd7859e05c36c06b56d013b55a252d0bb7e158
-9ea88f22fc6269854151c571162c5bcf958bee2b
-4.
-solution: git rev-list --oneline v0.12.23..v0.12.24
-33ff1c03b v0.12.24
-b14b74c49 [Website] vmc provider links
-3f235065b Update CHANGELOG.md
-6ae64e247 registry: Fix panic when server is unreachable
-5c619ca1b website: Remove links to the getting started guide's old location
-06275647e Update CHANGELOG.md
-d5f9411f5 command: Fix bug when using terraform login on Windows
-4b6d06cc5 Update CHANGELOG.md
-dd01a3507 Update CHANGELOG.md
-225466bc3 Cleanup after v0.12.23 release
-5.
-solution: git log --pretty=oneline -S "func providerSource(" 
-hash: 8c928e83589d90a031f811fae52a81be7153e82f
-comment: main: Consult local directories as potential mirrors of providers
-6.
-solution:
-git grep -p "globalPluginDirs("
-git log -L :globalPluginDirs:plugins.go
-answer:
-8364383c359a6b738a436d1b7745ccdce178df47
-66ebff90cdfaa6938f26f908c7ebad8d547fea17
-41ab0aef7a0fe030e84018973a64135b11abcd70
-52dbf94834cb970b510f2fba853a5b49ad9b1a46
-78b12205587fe839f10d946ea3fdc06719decb05
-7.
-sulution: 
-git log --pretty=oneline -S "func synchronizedWriters(" 
-git show 5ac311e2a91e381e2f52234668b49ba670aa0fe5
-hash: 5ac311e2a91e381e2f52234668b49ba670aa0fe5
-author: Martin Atkins
+1. Установлен Oracle VirtualBox 6.1.28.
+2. Установлен vagrant 2.2.19.
+3. Был установлен алтернативный терминал iTerm2 для MacOS.
+4. Создана папка vagrant, в ней файл Vagrantfile с приведеным в задании содержанием.
+ Vagrant.configure("2") do |config|
+ 	config.vm.box = "bento/ubuntu-20.04"
+ end
+Запустил виртуальнаую машину путем выполнения команды vagrant up.
+5. Ознакомился с интерфейсом. При создании виртуальной машины были выделены следующие аппаратные ресурсы:
+CPU: 1
+Processors: 2
+RAM: 1024 Mb
+HDD: 64 Gb
+6. Добавил команды в файл Vagrantfile:
+config.vm.provider "virtualbox" do |vb|
+ vb.memory = "2048"
+ vb.cpus = 2
+end
+7. Выполнено
+8. 
+- какой переменной можно задать длину журнала history, и на какой строчке manual это описывается? 
+HISTFILESIZE - максимальное количество строк в файле истории 1131 строка;
+HISTSIZE - количество команд для сохранения 1152 строка.
+- что делает директива ignoreboth в bash?
+ignoreboth - это сокращение для ignorespace и ignoredups.
+ignorespace - исключает попадание в историю строк, начинающихся с пробела.
+ignoredups - исключает запись в историю команд, если такие уже имеются в истории.
+9. { } - зарезервированные слова. Используются в различных условных операторах и циклах, 208 строка.
+10. 300000 создать не получится из-за превышения stack_size(по-умолчанию 8192).
+11. Конструкция [[ -d /tmp ]] проверяет наличие дирректории /tmp.
+12. 
+vagrant@vagrant:~$ mkdir /tmp/new_path_directory/
+vagrant@vagrant:~$ export PATH=$PATH:/tmp/new_path_directory/
+vagrant@vagrant:~$ type -a bash
+bash is /usr/bin/bash
+bash is /bin/bash
+vagrant@vagrant:~$ cp /bin/bash /tmp/new_path_directory/
+vagrant@vagrant:~$ PATH=/tmp/new_path_directory/:$PATH
+vagrant@vagrant:~$ type -a bash
+bash is /tmp/new_path_directory/bash
+bash is /usr/bin/bash
+bash is /bin/bash
+13. at - команда, которая позволяет назначить одноразового выполнения определенной задачи в установленное время.
+batch - команда, позволяющая выполнять задачи при загруженности системы ниже 0.8. Данное значение параметрируется в демоне atd.
+14. Завершена работа виртуальной машины, путем выполнения команды vagrant halt.
