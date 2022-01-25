@@ -1,48 +1,51 @@
 # devops-netology
-Домашная работа "Работа в терминале Лекция 1"
+Домашная работа "Работа в терминале Лекция 2"
 
-1. Установлен Oracle VirtualBox 6.1.28.
-2. Установлен vagrant 2.2.19.
-3. Был установлен алтернативный терминал iTerm2 для MacOS.
-4. Создана папка vagrant, в ней файл Vagrantfile с приведеным в задании содержанием.
- Vagrant.configure("2") do |config|
- 	config.vm.box = "bento/ubuntu-20.04"
- end
-Запустил виртуальнаую машину путем выполнения команды vagrant up.
-5. Ознакомился с интерфейсом. При создании виртуальной машины были выделены следующие аппаратные ресурсы:
-CPU: 1
-Processors: 2
-RAM: 1024 Mb
-HDD: 64 Gb
-6. Добавил команды в файл Vagrantfile:
-config.vm.provider "virtualbox" do |vb|
- vb.memory = "2048"
- vb.cpus = 2
-end
-7. Выполнено
-8. 
-- какой переменной можно задать длину журнала history, и на какой строчке manual это описывается? 
-HISTFILESIZE - максимальное количество строк в файле истории 1131 строка;
-HISTSIZE - количество команд для сохранения 1152 строка.
-- что делает директива ignoreboth в bash?
-ignoreboth - это сокращение для ignorespace и ignoredups.
-ignorespace - исключает попадание в историю строк, начинающихся с пробела.
-ignoredups - исключает запись в историю команд, если такие уже имеются в истории.
-9. { } - зарезервированные слова. Используются в различных условных операторах и циклах, 208 строка.
-10. 300000 создать не получится из-за превышения stack_size(по-умолчанию 8192).
-11. Конструкция [[ -d /tmp ]] проверяет наличие дирректории /tmp.
-12. 
-vagrant@vagrant:~$ mkdir /tmp/new_path_directory/
-vagrant@vagrant:~$ export PATH=$PATH:/tmp/new_path_directory/
-vagrant@vagrant:~$ type -a bash
-bash is /usr/bin/bash
-bash is /bin/bash
-vagrant@vagrant:~$ cp /bin/bash /tmp/new_path_directory/
-vagrant@vagrant:~$ PATH=/tmp/new_path_directory/:$PATH
-vagrant@vagrant:~$ type -a bash
-bash is /tmp/new_path_directory/bash
-bash is /usr/bin/bash
-bash is /bin/bash
-13. at - команда, которая позволяет назначить одноразового выполнения определенной задачи в установленное время.
-batch - команда, позволяющая выполнять задачи при загруженности системы ниже 0.8. Данное значение параметрируется в демоне atd.
-14. Завершена работа виртуальной машины, путем выполнения команды vagrant halt.
+1. cd имеет тип “встроенная в оболочку”, воспользовался командой type cd. Теоретически можно сделать cd внешней.
+
+2. В данном случае stdout для “grep <some_string> <some_file>” передается в stdin “wc -l”
+Альтернативный вариант grep -с <some_string> <some_file>
+
+3. Процесс systemd имеет PID 1
+
+4. Выполним следующую команду ls -l /prot/$$/fd 2>/dev/pts/1
+После чего stderr будет перенаправлен в терминал /dev/pts/1
+
+5. cat readme.txt>task5.txt
+
+6. Вывести можно, если перенапрвить stdout из pty  в tty, но чтобы наблюдать вывод необходимо переключиться на данный tty.
+
+7. Команда bash 5>&1 создает новый дескриптер и перенаправляет его на stdout. При выполнении команды echo netology > /proc/$$/fd/5 в терминале выводится netology. Stdout перенаправляется в ранее созданный файл дескриптера 5.
+
+8.
+vagrant@vagrant:~$ touch task8.txt
+vagrant@vagrant:~$ echo string for task > task8.txt
+vagrant@vagrant:~$ cat task8.txt | wc -w
+3
+vagrant@vagrant:~$ cat task8.txt 3>&1 1>&2 2>&3 | wc -w
+string for task
+0
+
+9. Команда cat /proc/$$/environ выдает начальную окружающую среду(различные переменные окружения), которая была задана при первом запуске. Подобную информацию можно получить путем выполнения команды printenv.
+
+10. 
+proc/<PID>/cmdline содержит все аргументы, которые были переданы ядру Linux при запуске
+/proc/<PID>/exe файл представляет из себя ссылку, содержащую путь к выполняемой команде
+
+11. Версия набора инструментов SSE процессора sse4_2
+
+12. Это происходит по следующей причине: изначальной TTY не выделяется при подключении. Если нужно включить оболочку,  можно выполнить команду ssh user@vagrant -t "ssh otheruser@vagrant”.
+
+13. Выполнено.
+В первом терминале выполняем следующие команды:
+vagrant@vagrant:~$ screen
+vagrant@vagrant:~$ ps -a
+    PID TTY          TIME CMD
+   1341 pts/0    00:00:00 screen
+   1350 pts/1    00:00:00 ps
+vagrant@vagrant:~$ tmux
+vagrant@vagrant:~$ sudo reptyr -T 1341
+В новом терминале выполняем:
+vagrant@vagrant:~$ tmux attach
+
+14. Команда tee осуществляет перенаправление потока с stdin на stdout плюс запись в файлы. Sudo tee получает вывод команды echo повышает привелегии пользователя и записывает в файл.
