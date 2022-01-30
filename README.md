@@ -1,51 +1,74 @@
 # devops-netology
-Домашная работа "Работа в терминале Лекция 2"
+Домашная работа "Операционные системы (лекция 1)"
 
-1. cd имеет тип “встроенная в оболочку”, воспользовался командой type cd. Теоретически можно сделать cd внешней.
+1.
+Выполняем команду  
+vagrant@vagrant:~$ strace /bin/bash -c 'cd /tmp' 2>&1 | grep /tmp
+execve("/bin/bash", ["/bin/bash", "-c", "cd /tmp"], 0x7ffca1d69ca0 /* 26 vars */) = 0
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+chdir("/tmp")
+Ответ: chdir("/tmp") 
 
-2. В данном случае stdout для “grep <some_string> <some_file>” передается в stdin “wc -l”
-Альтернативный вариант grep -с <some_string> <some_file>
+2.
+Файл базы типов находится в следующей дирректории "/usr/share/misc/magic.mgc”, это можно наблюдать выводе команды strace file.
+openat(AT_FDCWD, "/usr/share/misc/magic.mgc", O_RDONLY) = 3
 
-3. Процесс systemd имеет PID 1
-
-4. Выполним следующую команду ls -l /prot/$$/fd 2>/dev/pts/1
-После чего stderr будет перенаправлен в терминал /dev/pts/1
-
-5. cat task5.txt>1 >task5_2.txt
-
-6. Вывести можно, если перенапрвить stdout из pty  в tty, но чтобы наблюдать вывод необходимо переключиться на данный tty.
-
-7. Команда bash 5>&1 создает новый дескриптер и перенаправляет его на stdout. При выполнении команды echo netology > /proc/$$/fd/5 в терминале выводится netology. Stdout перенаправляется в ранее созданный файл дескриптера 5.
-
-8.
-vagrant@vagrant:~$ touch task8.txt
-vagrant@vagrant:~$ echo string for task > task8.txt
-vagrant@vagrant:~$ cat task8.txt | wc -w
-3
-vagrant@vagrant:~$ cat task8.txt 3>&1 1>&2 2>&3 | wc -w
-string for task
-0
-
-9. Команда cat /proc/$$/environ выдает начальную окружающую среду(различные переменные окружения), которая была задана при первом запуске. Подобную информацию можно получить путем выполнения команды printenv.
-
-10. 
-proc/<PID>/cmdline содержит все аргументы, которые были переданы ядру Linux при запуске
-/proc/<PID>/exe файл представляет из себя ссылку, содержащую путь к выполняемой команде
-
-11. Версия набора инструментов SSE процессора sse4_2
-
-12. Это происходит по следующей причине: изначальной TTY не выделяется при подключении. Если нужно включить оболочку,  можно выполнить команду ssh user@vagrant -t "ssh otheruser@vagrant”.
-
-13. Выполнено.
-В первом терминале выполняем следующие команды:
-vagrant@vagrant:~$ screen
+3. 
 vagrant@vagrant:~$ ps -a
     PID TTY          TIME CMD
-   1341 pts/0    00:00:00 screen
-   1350 pts/1    00:00:00 ps
-vagrant@vagrant:~$ tmux
-vagrant@vagrant:~$ sudo reptyr -T 1341
-В новом терминале выполняем:
-vagrant@vagrant:~$ tmux attach
+   2580 pts/1    00:00:00 vim
+   2581 pts/0    00:00:00 ps
+vagrant@vagrant:~$ sudo lsof -p 2580 | grep task3.2.txt
+vim     2580 vagrant    4u   REG  253,0    12288 1048620 /home/vagrant/homework/.task3.2.txt.swp
+vagrant@vagrant:~$ rm /home/vagrant/homework/.task3.2.txt.swp
+vagrant@vagrant:~$ cat /home/vagrant/homework/.task3.2.txt.swp
+cat: /home/vagrant/homework/.task3.2.txt.swp: No such file or directory
+vagrant@vagrant:~$ sudo lsof -p 2580 | grep task3.2.txt
+vim     2580 vagrant    4u   REG  253,0    12288 1048620 /home/vagrant/homework/.task3.2.txt.swp (deleted)
+vagrant@vagrant:~$ echo '' >/proc/2580/fd/4
 
-14. Команда tee осуществляет перенаправление потока с stdin на stdout плюс запись в файлы. Sudo tee получает вывод команды echo повышает привелегии пользователя и записывает в файл.
+vagrant@vagrant:~$ cat /proc/2580/fd/4  > /home/vagrant/homework/.task3.2.txt.swp
+vagrant@vagrant:~$ cat /home/vagrant/homework/.task3.2.txt.swp
+
+4. 
+Процессы со статусом “зомби” не занимают памяти (как “сироты”), но блокируют записи в таблице процессов, размер которой ограничен для каждого пользователя и системы в целом.  Запись в таблице освободится, при вызову родительским процессом системного вызова wait().
+
+5. 
+vagrant@vagrant:~$ sudo -i
+root@vagrant:~# /usr/sbin/opensnoop-bpfcc
+PID    COMM               FD ERR PATH
+906    vminfo              4   0 /var/run/utmp
+641    dbus-daemon        -1   2 /usr/local/share/dbus-1/system-services
+641    dbus-daemon        21   0 /usr/share/dbus-1/system-services
+641    dbus-daemon        -1   2 /lib/dbus-1/system-services
+641    dbus-daemon        21   0 /var/lib/snapd/dbus-1/system-services/
+
+6. 
+Выполняется системный вызов uname ()
+Выдержка из man: 
+Part of the utsname information is also accessible via
+       /proc/sys/kernel/{ostype, hostname, osrelease, version, domainname}.
+
+Например:
+vagrant@vagrant:~$ cat /proc/sys/kernel/osrelease
+5.4.0-91-generic
+
+7.
+Символ ; - служит разделителем последовательных команд
+Символ && - логический оператор “И”, те в данной случае вторая команда будет выполняться только после того, как первая выполнилась удачно(вернулся 0)
+
+Команда Set -e текущую прерывает сессию если команда завершилась с ненулевым статусом.
+Думаю, нет смысла использовать && вместе с set -e, тк при возникновении ошибки выполнении команд, дальнейшее выполнение остановится
+
+8.
+-e прерывает сессию если команда завершилась с ненулевым статусом.
+-u неустановленные/не заданные параметры и переменные считаются как ошибки
+-x вывод перечень команд с аргументами, если они выполняются.
+-o pipefail позволяет вывести статус выполнения набора команд, 0 - если все выполнено успешно, ненулевой - для последней команды.
+
+Эти опции полезны для отладки сценариев(дополнительное логирование)
+ 
+9.
+Наиболее часто встречающийся статус у процессов в системе согласно выводу команды ps -o stat:
+S(Ssl, Sl, S<) - процессы, ожидающие завершения;
+I(I, I<) - фоновые процессы ядра.
