@@ -1,74 +1,107 @@
 # devops-netology
-Домашная работа "Операционные системы (лекция 1)"
+Домашная работа "Операционные системы (лекция 2)"
 
-1.
-Выполняем команду  
-vagrant@vagrant:~$ strace /bin/bash -c 'cd /tmp' 2>&1 | grep /tmp
-execve("/bin/bash", ["/bin/bash", "-c", "cd /tmp"], 0x7ffca1d69ca0 /* 26 vars */) = 0
-stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
-chdir("/tmp")
-Ответ: chdir("/tmp") 
+1. 
+- Был сконфигурирован init-файл для node_exporter
+  vagrant@vagrant:~$ cat /etc/systemd/system/node_exporter.service
+  [Unit]
+  Description=Node Exporter
+
+  [Service]
+  ExecStart=/usr/local/bin/node_exporter $OPTIONS
+  EnviromentalFile=/etc/default/node_exporter
+
+  [Install]
+  WantedBy=multi-user.target
+
+- Далее node_exporter  помещен в автозагрузку
+  vagrant@vagrant:~$ sudo systemctl daemon-reload
+  vagrant@vagrant:~$ sudo systemctl enable node_exporter
+  vagrant@vagrant:~$ systemctl start node_exporter
+- После перезагрузки виртуальной машинки
+  vagrant@vagrant:~$ ps -e | grep node_exporter
+    649 ?        00:00:00 node_exporter
+  vagrant@vagrant:~$ systemctl stop node_exporter
+  ==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+  Authentication is required to stop 'node_exporter.service'.
+  Authenticating as: vagrant
+  Password:
+  ==== AUTHENTICATION COMPLETE ===
+  vagrant@vagrant:~$ ps -e | grep node_exporter
+  vagrant@vagrant:~$ systemctl start node_exporter
+  ==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+  Authentication is required to start 'node_exporter.service'.
+  Authenticating as: vagrant
+  Password:
+  ==== AUTHENTICATION COMPLETE ===
+  vagrant@vagrant:~$ ps -e | grep node_exporter
+   1379 ?        00:00:00 node_exporter
 
 2.
-Файл базы типов находится в следующей дирректории "/usr/share/misc/magic.mgc”, это можно наблюдать выводе команды strace file.
-openat(AT_FDCWD, "/usr/share/misc/magic.mgc", O_RDONLY) = 3
+CPU(для каждого cpu)
+node_cpu_seconds_total{cpu="0",mode="system"} 9.37
+node_cpu_seconds_total{cpu="0",mode="user"} 4.78
+process_cpu_seconds_total 0.15
+Memory
+node_memory_MemAvailable_bytes
+node_memory_MemTotal_bytes
+Disk
+node_disk_read_bytes_total
+node_disk_read_time_seconds_total
+node_disk_write_time_seconds_total
+Network
+node_network_receive_bytes_total{device="eth0"} 341321
+node_network_receive_errs_total{device="eth0"} 0
+node_network_transmit_bytes_total{device="eth0"} 309777
+node_network_transmit_errs_total{device="eth0"} 0
 
-3. 
-vagrant@vagrant:~$ ps -a
+3.
+- Установлен Netdata, добавлена секция с записью в файл etc/netdata/netdata.conf
+  [web]
+  bind to = 0.0.0.0
+- Проброшен порт Netdata в локальный ПК путем добавления записи 
+  config.vm.network "forwarded_port", guest: 19999, host: 19999
+  в файл Vagrantfile.
+- Ознакомился с метриками по умолчанию. Ссылку на скриншот приложил к домашней работе.
+
+4.
+Да, возможно путем выполнения 
+vagrant@vagrant:~$ sudo dmesg | grep "Hypervisor detected"
+[    0.000000] Hypervisor detected: KVM
+На реальной железке данная запись бы отсутствовала.
+Также были найдены следующие строки:
+[    0.000000] DMI: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[    0.154320] Booting paravirtualized kernel on KVM
+
+5.
+fs.nr_open это системное ограничение количества открытых дескриптеров
+vagrant@vagrant:~$ /sbin/sysctl -n fs.nr_open
+1048576
+
+Также существует так называемый “Жесткий лимит”, его можно узнать здесь
+vagrant@vagrant:~$ ulimit -Hn
+1048576
+
+6.
+vagrant@vagrant:~$ ps -e | grep sleep
+   1568 pts/0    00:00:00 sleep
+vagrant@vagrant:~$ sudo -i nsenter -t 1568 -p -m
+root@vagrant:/# ps
     PID TTY          TIME CMD
-   2580 pts/1    00:00:00 vim
-   2581 pts/0    00:00:00 ps
-vagrant@vagrant:~$ sudo lsof -p 2580 | grep task3.2.txt
-vim     2580 vagrant    4u   REG  253,0    12288 1048620 /home/vagrant/homework/.task3.2.txt.swp
-vagrant@vagrant:~$ rm /home/vagrant/homework/.task3.2.txt.swp
-vagrant@vagrant:~$ cat /home/vagrant/homework/.task3.2.txt.swp
-cat: /home/vagrant/homework/.task3.2.txt.swp: No such file or directory
-vagrant@vagrant:~$ sudo lsof -p 2580 | grep task3.2.txt
-vim     2580 vagrant    4u   REG  253,0    12288 1048620 /home/vagrant/homework/.task3.2.txt.swp (deleted)
-vagrant@vagrant:~$ echo '' >/proc/2580/fd/4
+   1579 pts/1    00:00:00 sudo
+   1581 pts/1    00:00:00 nsenter
+   1586 pts/1    00:00:00 bash
+   1597 pts/1    00:00:00 ps
 
-vagrant@vagrant:~$ cat /proc/2580/fd/4  > /home/vagrant/homework/.task3.2.txt.swp
-vagrant@vagrant:~$ cat /home/vagrant/homework/.task3.2.txt.swp
+7. 
+Если интерпретировать :(){ :|:& };: в более удобоваримый вид, то получаем
+f {
+    f | f &
+}; f
+Те определение функции, которая вызывает сама себя, причем два экземпляра. Далее процесс повторяется и так до бесконечности.
 
-4. 
-Процессы со статусом “зомби” не занимают памяти (как “сироты”), но блокируют записи в таблице процессов, размер которой ограничен для каждого пользователя и системы в целом.  Запись в таблице освободится, при вызову родительским процессом системного вызова wait().
+dmesg показал следующее, если не ошибаюсь. то это строка относится к нашему случаю. 
+[ 1506.078085] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-7.scope
 
-5. 
-vagrant@vagrant:~$ sudo -i
-root@vagrant:~# /usr/sbin/opensnoop-bpfcc
-PID    COMM               FD ERR PATH
-906    vminfo              4   0 /var/run/utmp
-641    dbus-daemon        -1   2 /usr/local/share/dbus-1/system-services
-641    dbus-daemon        21   0 /usr/share/dbus-1/system-services
-641    dbus-daemon        -1   2 /lib/dbus-1/system-services
-641    dbus-daemon        21   0 /var/lib/snapd/dbus-1/system-services/
-
-6. 
-Выполняется системный вызов uname ()
-Выдержка из man: 
-Part of the utsname information is also accessible via
-       /proc/sys/kernel/{ostype, hostname, osrelease, version, domainname}.
-
-Например:
-vagrant@vagrant:~$ cat /proc/sys/kernel/osrelease
-5.4.0-91-generic
-
-7.
-Символ ; - служит разделителем последовательных команд
-Символ && - логический оператор “И”, те в данной случае вторая команда будет выполняться только после того, как первая выполнилась удачно(вернулся 0)
-
-Команда Set -e текущую прерывает сессию если команда завершилась с ненулевым статусом.
-Думаю, нет смысла использовать && вместе с set -e, тк при возникновении ошибки выполнении команд, дальнейшее выполнение остановится
-
-8.
--e прерывает сессию если команда завершилась с ненулевым статусом.
--u неустановленные/не заданные параметры и переменные считаются как ошибки
--x вывод перечень команд с аргументами, если они выполняются.
--o pipefail позволяет вывести статус выполнения набора команд, 0 - если все выполнено успешно, ненулевой - для последней команды.
-
-Эти опции полезны для отладки сценариев(дополнительное логирование)
- 
-9.
-Наиболее часто встречающийся статус у процессов в системе согласно выводу команды ps -o stat:
-S(Ssl, Sl, S<) - процессы, ожидающие завершения;
-I(I, I<) - фоновые процессы ядра.
+Механизм работает похоже следующим образом, он отслеживает количество созданных процессов, соответственно при достижении заданного ограничения, блокирует дальнейшее создание процессов.
+Максимальное число пользовательских процессов можно настроить с помощью ulimit -u.
