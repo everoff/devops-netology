@@ -1,74 +1,90 @@
-Домашная работа "Компьютерные сети - 3"
+# Домашнее задание к занятию "4.1. Командная оболочка Bash: Практические навыки"
 
-1.
-Подключился к публичному маршрутизатору.
-route-views>show bgp 89.109.51.94
-BGP routing table entry for 89.109.51.0/24, version 273737342
-Paths: (3 available, best #3, table default)
-  Not advertised to any peer
-  Refresh Epoch 1
-  701 1273 12389
-    137.39.3.55 from 137.39.3.55 (137.39.3.55)
-      Origin IGP, localpref 100, valid, external
-      path 7FE1105AC098 RPKI State invalid
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  20912 49367 6762 12389
-    212.66.96.126 from 212.66.96.126 (212.66.96.126)
-      Origin IGP, localpref 100, valid, external
-      Community: 6762:1 6762:30 6762:40 6762:14900 20912:65005 49367:2 49367:6762
-      path 7FE120B7E128 RPKI State invalid
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  49788 12552 12389
-    91.218.184.60 from 91.218.184.60 (91.218.184.60)
-      Origin IGP, localpref 100, valid, external, best
-      Community: 12552:12000 12552:12100 12552:12101 12552:22000
-      Extended Community: 0x43:100:1
-      path 7FE1559C0CB8 RPKI State invalid
-      rx pathid: 0, tx pathid: 0x0
-route-views>show ip route 89.109.51.94
-Routing entry for 89.109.51.0/24
-  Known via "bgp 6447", distance 20, metric 0
-  Tag 49788, type external
-  Last update from 91.218.184.60 3w1d ago
-  Routing Descriptor Blocks:
-  * 91.218.184.60, from 91.218.184.60, 3w1d ago
-      Route metric is 0, traffic share count is 1
-      AS Hops 3
-      Route tag 49788
-      MPLS label: none
+## Обязательная задача 1
 
-2.
-Создал виртуальный интерфейс dummy0 с адресом 192.168.2.2/32.
-root@vagrant:~# ip link
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
-    link/ether 08:00:27:b1:28:5d brd ff:ff:ff:ff:ff:ff
-3: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-    link/ether f6:fa:c6:de:0a:70 brd ff:ff:ff:ff:ff:ff
-Добавил несколько статических маршрутов:
-root@vagrant:~# ip route
-default via 10.0.2.2 dev eth0 proto dhcp src 10.0.2.15 metric 100
-10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15
-10.0.2.2 dev eth0 proto dhcp scope link src 10.0.2.15 metric 100
-192.168.2.64/26 via 10.0.2.2 dev eth0
-192.168.5.7 via 10.0.2.2 dev eth0
+Есть скрипт:
+```bash
+a=1
+b=2
+c=a+b
+d=$a+$b
+e=$(($a+$b))
+```
 
-3, 4
-vagrant@vagrant:~$ ss -tulpn
-Netid     State      Recv-Q      Send-Q            Local Address:Port           Peer Address:Port     Process
-udp       UNCONN     0           0                 127.0.0.53%lo:53                  0.0.0.0:*
-udp       UNCONN     0           0                10.0.2.15%eth0:68                  0.0.0.0:*
-udp       UNCONN     0           0                     127.0.0.1:161                 0.0.0.0:*
-udp       UNCONN     0           0                         [::1]:161                    [::]:*
-tcp       LISTEN     0           4096              127.0.0.53%lo:53                  0.0.0.0:*
-tcp       LISTEN     0           128                     0.0.0.0:22                  0.0.0.0:*
-tcp       LISTEN     0           128                        [::]:22                     [::]:*
+Какие значения переменным c,d,e будут присвоены? Почему?
 
-Вывод команды показал, что открыты порты TCP: 22 и 53. 22 использует SSH-сервер, это его порт по умолчанию. 
-DNS использует UDP порт 53, но TCP порт 53 также зарезервирован для DNS. 
-Для SNMP службы зарезервирован 161 UDP порт.
+| Переменная  | Значение | Обоснование |
+| ------------- | ------------- | ------------- |
+| `c`  | a+b  | a и b это текст, а не переменные, которые определили |
+| `d`  | 1+2  | Тут используем переменные, но bash определяет символ "+" как строку, а не арифм. действие |
+| `e`  | 3  | Использование двойных скобок означает, что это арифметическое действие |
 
+## Обязательная задача 2
+На нашем локальном сервере упал сервис и мы написали скрипт, который постоянно проверяет его доступность, записывая дату проверок до тех пор, пока сервис не станет доступным (после чего скрипт должен завершиться). В скрипте допущена ошибка, из-за которой выполнение не может завершиться, при этом место на Жёстком Диске постоянно уменьшается. Что необходимо сделать, чтобы его исправить:
+```bash
+while ((1==1)
+do
+	curl https://localhost:4757
+	if (($? != 0))
+	then
+		date >> curl.log
+	fi
+done
+```
+### В приведенном скрипте присутствует опечатка, в условии цикла while отсутствует вторая закрывающая 
+### скобка. Второй вопрос - уменьшение свободного места на HDD. Его можно решить путем уменьшения 
+### частоты  выполнения скрипта - добавил sleep в конце скрипта.
+### Добавил проверку "else break" успешкности выполнения команды curl, она же и позволит выйти из цикла.  
+### Ваш скрипт:
+```bash
+#!/bin/bash
 
+while ((1==1))
+do
+	curl https://localhost:4757
+	if (($? != 0))
+	then
+		date >> curl.log
+	else break
+	fi
+	sleep 10
+done
+```
+## Обязательная задача 3
+Необходимо написать скрипт, который проверяет доступность трёх IP: `192.168.0.1`, `173.194.222.113`, `87.250.250.242` по `80` порту и записывает результат в файл `log`. Проверять доступность необходимо пять раз для каждого узла.
+
+### Ваш скрипт:
+```bash
+#!/bin/bash
+hosts=(192.168.0.1 173.194.222.113 87.250.250.24)
+for ((i=1; i<=5; i++))
+do
+    for j in ${hosts[@]}
+    do
+        curl -s --connect-timeout 3 http://$j:80 >/dev/null
+        echo "Attemp - " $i $j "result - " $? >>result.log
+    done
+done
+```
+## Обязательная задача 4
+Необходимо дописать скрипт из предыдущего задания так, чтобы он выполнялся до тех пор, пока один из узлов не окажется недоступным. Если любой из узлов недоступен - IP этого узла пишется в файл error, скрипт прерывается.
+
+### Ваш скрипт:
+```bash
+#!/usr/bin/env bash
+address=(192.168.0.1 173.194.222.113 87.250.250.24)
+while ((1==1))
+do
+    for j in ${address[@]}
+    do
+        curl -s --connect-timeout 3 http://$j:80 >/dev/null
+        result=$?
+        echo "Attemp - " $i $j "result - " $result >>result.log
+        if (($result != 0))
+        then
+                echo "Host " $j " is unavailable" >>error.log
+                exit
+        fi
+    done
+done
+```
