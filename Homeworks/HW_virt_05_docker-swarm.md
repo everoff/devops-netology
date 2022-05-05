@@ -8,13 +8,14 @@
 
 ## Задача 2
 
-![Task2](HW_script_05_docker-swarm/task2.png)
+![Task2](https://github.com/everoff/devops-netology/blob/main/Homeworks/HW_script_05_docker-swarm/task_2.png)
+
 
 ---
 
 ## Задача 3
 
-![Task3](HW_script_05_docker-swarm/task3.png)
+![Task3](https://github.com/everoff/devops-netology/blob/main/Homeworks/HW_script_05_docker-swarm/task_3.png)
 
 ---
 
