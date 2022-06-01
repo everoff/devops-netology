@@ -13,7 +13,7 @@ psql (13.7 (Debian 13.7-1.pgdg110+1))
 - \d[S+]  NAME - вывод описания содержимого таблиц
 - \q - выход из psql
 
-## Задача 2
+## Задание 2
 - Восстановление БД из бэкапа
 ```
 root@9a31c7b23b18:/# psql -U postgres -f /backup/test_dump.sql test_database
