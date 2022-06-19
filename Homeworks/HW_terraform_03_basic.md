@@ -213,14 +213,14 @@ Terraform will perform the following actions:
       + description               = "News App Demo"
       + folder_id                 = (known after apply)
       + fqdn                      = (known after apply)
-      + hostname                  = "-1"
+      + hostname                  = "news-1-prod-1"
       + id                        = (known after apply)
       + metadata                  = {
           + "ssh-keys" = <<-EOT
                 centos:
            EOT
         }
-      + name                      = "-1"
+      + name                      = "news-1-prod-1"
       + network_acceleration_type = "standard"
       + platform_id               = "standard-v2"
       + service_account_id        = (known after apply)
@@ -296,14 +296,14 @@ Terraform will perform the following actions:
       + description               = "News App Demo"
       + folder_id                 = (known after apply)
       + fqdn                      = (known after apply)
-      + hostname                  = "-1"
+      + hostname                  = "news-2-prod-1"
       + id                        = (known after apply)
       + metadata                  = {
           + "ssh-keys" = <<-EOT
                 centos:ssh-rsa 
            EOT
         }
-      + name                      = "-1"
+      + name                      = "news-2-prod-1"
       + network_acceleration_type = "standard"
       + platform_id               = "standard-v2"
       + service_account_id        = (known after apply)

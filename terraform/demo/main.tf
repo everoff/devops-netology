@@ -15,8 +15,8 @@ provider "yandex" {
 }
 
 resource "yandex_storage_bucket" "testYC" {
-  access_key = "YCAJE8MV71p6ZWDhuAyRGbJtz"
-  secret_key = "YCMYkvjhhhfiyDTkPodoyxZD9-Y12R9Rt0npMDLf"
+  access_key = ""
+  secret_key = ""
   bucket = "bucketYC"
 }
 
@@ -64,6 +64,8 @@ module "news_for" {
   folder_id = module.vpc.folder_id
   image         = "centos-7"
   platform_id   = "standard-v2"
+  name          = "news-${each.key}-${terraform.workspace}"
+  hostname      = "news-${each.key}-${terraform.workspace}"
   description   = "News App Demo"
   instance_role = "news,balancer"
   users         = "centos"
