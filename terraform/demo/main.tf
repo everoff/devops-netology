@@ -14,6 +14,11 @@ provider "yandex" {
   zone      = var.yc_region
 }
 
+resource "yandex_storage_bucket" "testYC" {
+  access_key = "YCAJE8MV71p6ZWDhuAyRGbJtz"
+  secret_key = "YCMYkvjhhhfiyDTkPodoyxZD9-Y12R9Rt0npMDLf"
+  bucket = "bucketYC"
+}
 
 module "vpc" {
   source  = "hamnsk/vpc/yandex"
@@ -50,6 +55,29 @@ module "news" {
   ]
 }
 
+module "news_for" {
+  source = "../modules/instance"
+  for_each = local.ins_id
+
+  subnet_id     = module.vpc.subnet_ids[0]
+  zone = var.yc_region
+  folder_id = module.vpc.folder_id
+  image         = "centos-7"
+  platform_id   = "standard-v2"
+  description   = "News App Demo"
+  instance_role = "news,balancer"
+  users         = "centos"
+  cores         = local.news_cores[terraform.workspace]
+  boot_disk     = "network-ssd"
+  disk_size     = local.news_disk_size[terraform.workspace]
+  nat           = "true"
+  memory        = "2"
+  core_fraction = "100"
+  depends_on = [
+    module.vpc
+  ]
+}
+
 
 locals {
   news_cores = {
@@ -64,6 +92,11 @@ locals {
     stage = 1
     prod = 2
   }
+  ins_id = toset([
+    "1",
+    "2",
+  ])
+
   vpc_subnets = {
     stage = [
       {

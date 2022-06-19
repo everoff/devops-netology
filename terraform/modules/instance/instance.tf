@@ -56,6 +56,10 @@ resource "yandex_compute_instance" "instance" {
     nat       = var.nat
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   metadata = {
     ssh-keys = "${var.users}:${file("~/.ssh/id_rsa.pub")}"
   }
