@@ -6,6 +6,7 @@
 > - В рамках основной части необходимо создать собственные workflow для двух типов задач: bug и остальные типы задач.
 
 Создал и настроил аккаунт Jira для команды разработки. 
+
 Ссылки на workflow:
-for bugs
-for other tastks
+- [for bugs](https://github.com/everoff/devops-netology/blob/main/Jira/for_bugs.xml)
+- [for other tasks](https://github.com/everoff/devops-netology/blob/main/Jira/for_other_tasks.xml)
