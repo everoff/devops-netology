@@ -5,6 +5,8 @@
 ## Знакомство с SonarQube
 - Делаем скриншот успешного прохождения анализа, прикладываем к решению ДЗ
 
+![Скриншот](HW_ci_03_cicd/cicd_1.png)
+
 ---
 ## Знакомство с Nexus
 - В ответе присылаем файл `maven-metadata.xml` для этого артефекта.
@@ -27,9 +29,10 @@
 ```
 
 ---
-# Знакомство с Maven
+## Знакомство с Maven
 - В ответе присылаем исправленный файл `pom.xml`
 
+Содержимое файла:
 ```
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
