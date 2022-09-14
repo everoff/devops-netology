@@ -13,7 +13,7 @@
 ![1](HW_ci_05_teamcity/first_build.png)
 4. Добавил два шага: если сборка по ветке `master`, то должен происходит `mvn clean deploy`, иначе `mvn clean test`.
 ![2](HW_ci_05_teamcity/two_steps.png)
-5. Загрузил файл [settings.xml]() и добавил в настройки build. 
+5. Загрузил файл [settings.xml](https://github.com/netology-code/mnt-homeworks/blob/MNT-13/09-ci-05-teamcity/teamcity/settings.xml) и добавил в настройки build. 
 6. Актуализировал ссылки на репозторий и nexus в файле pom.xml.
 7. Запустил сборку по master.
 ![3](HW_ci_05_teamcity/step_7_1.png)
