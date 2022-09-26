@@ -31,6 +31,7 @@
 
 3. Склонировал [репозиторий](https://github.com/influxdata/sandbox/tree/master) и запустил TICK-стэк, используя технологии docker и docker-compose.
 ![1](HW_monitoring_02_systems/Screenshot_1.png)
+
 Вывод `curl http://localhost:8086/ping -v`
  ```
 maksim@MacBook-Pro sandbox % curl http://localhost:8086/ping -v
@@ -70,5 +71,3 @@ maksim@MacBook-Pro sandbox % curl http://localhost:8888
 
 5. Добавил в конфигурацию telegraf плагин `docker`.
 ![3](HW_monitoring_02_systems/Screenshot_3.png)
-
-
